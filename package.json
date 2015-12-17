@@ -1,0 +1,60 @@
+{
+  "name": "react-file-preview",
+  "version": "1.0.0",
+  "description": "preview and compare files",
+  "main": "index.js",
+  "scripts": {
+    "start": "node webpackServer.js",
+    "lint": "eslint src",
+    "deploy": "NODE_ENV=production webpack -p --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glebedel/react-file-preview.git"
+  },
+  "keywords": [
+    "filter",
+    "and",
+    "search",
+    "through",
+    "js",
+    "object",
+    "with",
+    "react",
+    "page"
+  ],
+  "author": "Guillaume Lebedel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/glebedel/react-file-preview/issues"
+  },
+  "homepage": "https://github.com/glebedel/react-file-preview#readme",
+  "devDependencies": {
+    "babel-core": "^6.0.20",
+    "babel-eslint": "^4.1.3",
+    "babel-loader": "^6.0.1",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-react": "^6.0.15",
+    "babel-preset-stage-0": "^6.0.15",
+    "css-loader": "^0.14.5",
+    "eslint-plugin-react": "^3.6.2",
+    "extract-text-webpack-plugin": "^0.9.1",
+    "file-loader": "^0.8.5",
+    "node-sass": "^3.4.2",
+    "react-dom": "^0.14.3",
+    "react-hot-loader": "^1.3.0",
+    "style-loader": "^0.13.0",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "bootstrap-material-design": "^0.3.0",
+    "highlight.js": "^9.0.0",
+    "jquery": "^2.1.4",
+    "lodash": "^3.10.1",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  }
+}
