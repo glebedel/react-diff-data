@@ -8,7 +8,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var BUILD_DIR = __dirname + '/src/public';
 var APP_DIR = path.join(__dirname + '/src/FilePreviewApp');
-var STYLES_DIR = __dirname + '/src/FilePreviewApp/styles';
+var STYLES_DIR = __dirname + '/src/FilePreviewApp/Styles';
 
 console.log(BUILD_DIR);
 var config = {
@@ -36,6 +36,7 @@ var config = {
         loaders: [
             {
                 test: /\.jsx?$/,
+                exclude: ".*node_modules.*",
                 include: APP_DIR,
                 loaders: ['react-hot', 'babel']
             },
@@ -46,9 +47,22 @@ var config = {
             {
                 test: /\.jpe?g$|\.gif$|\.png$|\.svg.*$|\.woff.*$|\.ttf.*$|\.wav$|\.mp3$|\.eot.*$/,
                 loader: "url-loader"
+            },
+            {
+                test: /\.scss$/,
+                loader: 'style!css!sass'
+            },
+            {
+                test: /\.json$/,
+                loader: "json-loader"
             }
-
         ],
+        /*node: {
+            console: 'empty',
+            fs: 'empty',
+            net: 'empty',
+            tls: 'empty'
+        }*/
     }
 }
 module.exports = config;

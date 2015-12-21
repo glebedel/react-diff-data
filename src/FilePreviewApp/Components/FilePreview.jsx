@@ -1,61 +1,95 @@
+import '../Styles/FilePreview.scss';
 
-import '../styles/FilePreview.css';
-
-var hljs = require('highlight.js');
-var _ = require("lodash")
+let _ = require("lodash")
+let hljs = require('highlight.js');
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap-material-design/dist/css/material.min.css";
 import "bootstrap-material-design/dist/css/ripples.min.css";
-import "highlight.js/styles/default.css"
-import "bootstrap/dist/js/bootstrap.min.js";
+import "bootstrap-material-design/dist/css/roboto.min.css";
 import "bootstrap-material-design/dist/js/material.min.js";
-import "bootstrap-material-design/dist/js/ripples.min.js";
+import "bootstrap-material-design/dist/js/ripples.min.js"
+import "highlight.js/styles/default.css"
+import '../Styles/highlightjs.scss';
 
 import React from 'react';
+import ConfigManager from '../ConfigManager.js';
+import ContentWrapper from './ContentWrapper.jsx';
+import ChoiceSelector from './ChoiceSelector.jsx';
+
 
 export default class FilePreview extends React.Component {
-    static defaultProps = {content: {}, language: []}
+    static defaultProps = {content: [], theme: "default", controls: {}, config: {}}
     static propTypes = {
-        content: React.PropTypes.shape({
+        content: React.PropTypes.arrayOf(React.PropTypes.shape({
             source: React.PropTypes.string,
-            data: React.PropTypes.string
-        }),
-        language: React.PropTypes.arrayOf(React.PropTypes.string)
+            data: React.PropTypes.string,
+            title: React.PropTypes.string
+        })),
+        language: React.PropTypes.string,
+        theme: React.PropTypes.string,
     }
 
     constructor(props) {
         super(props);
-        this.state = {
-            content: this.formatData(this.props.content.data)
-        }
-    }
-    formatData(value) {
-        return value && hljs.fixMarkup(value)
+        this.state = Object.assign({
+            language: this.props.language,
+            theme: this.props.theme,
+            currentFile: this.props.content[0],
+        }, ConfigManager.getConfig(this.props.config));
     }
 
     componentDidMount() {
-        if (this.props.content.source && !this.props.content.data) {
-            $.get(this.props.source, (result) => this.setState({content: this.formatData(result)}));
-        }
         this.initializeThirdParty();
     }
 
-    render() {
-        var title = this.props.content.title && <h2 className="pf-title">{this.props.content.title}</h2>;
-        return (
+    _fixFileTitles(files) {
+        files.forEach((file)=>{
+            if (!file.title && file.source)
+                file.title = file.source.match(/.*\/(.*)/)[1];
+        });
+    }
 
-            <div className="jumbotron">
-                <div className="modal-header">
-                    <button type="button" className="close">×</button>
-                    {title}
+    render() {
+        let currentFile = this.state.currentFile;
+        let {controls, ...props} = this.props;
+        this._fixFileTitles(this.props.content);
+        ConfigManager.setConfig(this.props.config, {language: this.state.language, theme: this.state.theme});
+        let title = (currentFile.title && <h2 className="pf-title">{currentFile.title}</h2>);
+        let themeSelector = controls.themes &&
+            (<div className="pf-controllers">
+                <div className="pf-theme-controller">
+                    <ChoiceSelector
+                        choices={controls.themes}
+                        updateParentState={this.setState.bind(this)}
+                        choicePrefix="Theme"
+                        currentValue={this.state.theme}
+                        stateToUpdate="theme"
+                        />
                 </div>
-                    <pre className="preview">
-                        <code
-                        className={this.props.language.join(" ")}
-                        >{this.state.content}
-                        </code>
-                    </pre>
+            </div>);
+        let files = this.props.content.map((file)=> file.title);
+        let fileSelector = this.props.content.length > 1 &&
+            (<div className="pf-file-controller">
+                <ChoiceSelector
+                    choices={files}
+                    updateParentState={this.setState.bind(this)}
+                    currentValue={currentFile.title}
+                    stateToUpdate="currentFile"
+                    dataChoiceMapping={this.props.content}
+                    />
+            </div>);
+        return (
+            <div className="pf-container well">
+                <div className="pf-header modal-header">
+                    {fileSelector || title}
+                </div>
+                <ContentWrapper
+                    {...props}
+                    {...this.state}
+                    />
+                {themeSelector}
             </div>
         );
     }
@@ -63,8 +97,8 @@ export default class FilePreview extends React.Component {
     componentDidUpdate() {
         this.initializeThirdParty();
     }
-    initializeThirdParty(){
-        hljs.initHighlightingOnLoad();
-        $.material.init()
+
+    initializeThirdParty() {
+        $.material.init();
     }
 }
