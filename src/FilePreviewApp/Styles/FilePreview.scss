@@ -3,8 +3,8 @@
   width: 90%;
   margin-left: 5%;
   position: relative;
-  padding-left:3%!important;
-  padding-right:3%!important;
+  padding-left: 3% !important;
+  padding-right: 3% !important;
   .pf-title {
   }
   .pf-header {
@@ -13,9 +13,9 @@
       .pf-choice-select {
         button {
           width: 100%;
-          font-family: RobotoDraft,Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;
+          font-family: RobotoDraft, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
           font-weight: 300;
-          font-size:30px;
+          font-size: 30px;
           text-transform: none;
           margin-top: 0px;
           padding: 0.2em 1em;
@@ -73,26 +73,70 @@
       }
     }
   }
-  .pf-error{
-    margin:auto;
-    margin-top:5em;
-    margin-bottom:5em;
-    width:50%;
-    min-width:600px;
+  .pf-error {
+    margin: auto;
+    margin-top: 5em;
+    margin-bottom: 5em;
+    width: 50%;
+    min-width: 600px;
     overflow-x: auto;
-    .panel-body{
-      padding-top:2.5em;
-      padding-bottom:2.5em;
+    .panel-body {
+      padding-top: 2.5em;
+      padding-bottom: 2.5em;
     }
   }
-  .pf-spinner{
-    width:100%;
-    .cube-grid{
-      margin:auto;
-      margin-top:5em;
-      margin-bottom:5em;
-      width:5em;
-      height: 5em;
-    }
+  .pf-spinner {
+    width: 5em;
+    height: 5em;
+    margin: auto;
+    margin: auto;
+    margin-top: 5em;
+    margin-bottom: 5em;
   }
 }
+
+.example-appear {
+  opacity: 0.01;
+}
+
+.example-appear.example-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
+
+.pf-wrapper-enter {
+  opacity: 0.01;
+}
+
+.pf-wrapper-enter.pf-wrapper-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.pf-wrapper-leave {
+  opacity: 1;
+}
+
+.pf-wrapper-leave.pf-wrapper-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+
+.pf-error-enter {
+  opacity: 0.01;
+}
+
+.pf-error-enter.pf-error-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.pf-error-leave {
+  opacity: 1;
+}
+
+/*.pf-error-leave.pf-error-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}*/

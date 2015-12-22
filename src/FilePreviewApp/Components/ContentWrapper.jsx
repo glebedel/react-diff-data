@@ -1,4 +1,5 @@
 import React from 'react';
+let ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 import ConfigManager from '../ConfigManager.js';
 
 let hljs = require('highlight.js');
@@ -12,7 +13,12 @@ import '../Styles/FilePreview.scss';
 import SimpleCache from '../Caching.js';
 
 export default class ContentWrapper extends React.Component {
-    static defaultProps = {currentFile: {}, theme: "default", config: {}}
+    static defaultProps = {
+        currentFile: {},
+        theme: "default",
+        config: {},
+        spinner: "circle"
+    }
     fileStorage = SimpleCache.createStore('fileCache');
 
     constructor(props) {
@@ -21,19 +27,26 @@ export default class ContentWrapper extends React.Component {
     }
 
     fetchFile(currentFile) {
-        let self = this;
         if (currentFile.source && !currentFile.data) {
             if (this.fileStorage.has(currentFile.source)) {
                 this.setState({data: this.fileStorage.get(currentFile.source)})
             }
-            else
-                $.ajax({method: "GET", url: currentFile.source, dataType: "text"}).done((result) => {
-                    setTimeout(()=>this.setState({data: result}), 20000)
-                    if (currentFile.cache && !this.fileStorage.has(currentFile))
-                        this.fileStorage.set(currentFile.source, result);
-                }).error((xhr, status, error)=> {
-                    setTimeout(()=>this.setState({data: false}), 20000)
-                });
+            else {
+                let fileAtRequest = currentFile;
+ //               setTimeout(()=> {
+                    $.ajax({method: "GET", url: currentFile.source, dataType: "text/plain"}).done((result) => {
+                        //checking that we didn't switch file during request
+                        if (this.props.currentFile === fileAtRequest)
+                            this.setState({data: result});
+                        if (currentFile.cache && !this.fileStorage.has(currentFile))
+                            this.fileStorage.set(currentFile.source, result);
+                    }).error((xhr, status, error)=> {
+                        //checking that we didn't switch file during request
+                        if (this.props.currentFile === fileAtRequest)
+                            this.setState({data: false});
+                    });
+//                }, 3000);
+            }
         }
         else if (currentFile.data) {
             this.setState({data: currentFile.data});
@@ -49,54 +62,67 @@ export default class ContentWrapper extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({data: null})
+        console.log("willReceiveProps", nextProps);
         if (nextProps.currentFile !== this.props.currentFile) {
+            if (!nextProps.currentFile.data)
+                this.setState({data: null});
             this.fetchFile(nextProps.currentFile);
         }
     }
 
-    refreshHandler = () => {
+    handleRefreshOnClick = () => {
+        if (this.props.currentFile.source)
+            this.setState({data: null});
         this.fetchFile(this.props.currentFile);
     }
 
     render() {
-        console.log("RENDER");
-        console.log(this.state.data);
+        console.warn("Render Content Wrapper!");
+        console.log("Rendered data:" + this.state.data);
+        //ajax request failed
+        let component;
         if (this.state.data === false) {
-            return (
-                <div className="pf-error panel panel-danger">
-                    <div className="panel-heading">
-                        <h3 className="panel-title">
-                            Oops!..Something went wrong...&nbsp;
-                        </h3>
-                    </div>
-                    <div className="panel-body">
-                        <strong>
-                            <a href="javascript:void(0)" className="alert-link">
-                                {this.props.currentFile.source}
+                return (<ReactCSSTransitionGroup
+                        transitionName="pf-error"
+                        transitionEnterTimeout={500}
+                        transitionLeaveTimeout={0}>
+                    <div
+                        key={this.props.currentFile.source}
+                         className="pf-error panel panel-danger">
+                        <div className="panel-heading">
+                            <h3 className="panel-title">
+                                Oops!..Something went wrong...&nbsp;
+                            </h3>
+                        </div>
+                        <div className="panel-body">
+                            <strong>
+                                <a href="javascript:void(0)" className="alert-link">
+                                    {this.props.currentFile.source}
+                                </a>
+                            </strong>
+                            &nbsp;couldn't be retrieved.
+                            <br/>
+                            <a href="javascript:void(0)"
+                               className="alert-link"
+                               onClick={this.handleRefreshOnClick}
+                                >
+                                Click here
                             </a>
-                        </strong>
-                        &nbsp;couldn't be retrieved.
-                        <br/>
-                        <a href="javascript:void(0)"
-                           className="alert-link"
-                           onClick={this.refreshHandler}
-                            >
-                            Click here
-                        </a>
-                        &nbsp;to try fetching it again.
+                            &nbsp;to try fetching it again.
+                        </div>
                     </div>
-                </div>
+                </ReactCSSTransitionGroup>
             );
         }
-        else if (!this.state.data) {
-            return (
-                <div className="pf-spinner">
-                    <Spinner spinnerName='cube-grid'/>
-                </div>);
-        }
+        //ajax request in progress
+        else if (!this.state.data)
+            return (<Spinner className="pf-spinner" spinnerName={this.props.spinner}/>);
+        //ajax request success
         return (
-            <div className={"pf-content-wrapper hljs-theme"}>
+            <ReactCSSTransitionGroup transitionName="pf-wrapper"
+                                     transitionEnterTimeout={1500}
+                                     transitionLeaveTimeout={550}>
+                <div key={this.props.currentFile.title} className={"pf-content-wrapper hljs-theme"}>
                     <pre
                         className={this.props.theme}>
                         <code
@@ -105,11 +131,13 @@ export default class ContentWrapper extends React.Component {
                             >{this.formatData(this.state.data)}
                         </code>
                     </pre>
-            </div>);
+                </div>
+            </ReactCSSTransitionGroup>
+        );
     }
 
     componentDidUpdate() {
-        if (this.state.data !== false)
+        if (this.state.data)
             this.initializeThirdParty(this.refs.codeBlock)
     }
 

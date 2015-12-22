@@ -2,6 +2,7 @@ import '../Styles/FilePreview.scss';
 
 let _ = require("lodash")
 let hljs = require('highlight.js');
+let  ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
@@ -45,7 +46,7 @@ export default class FilePreview extends React.Component {
     }
 
     _fixFileTitles(files) {
-        files.forEach((file)=>{
+        files.forEach((file)=> {
             if (!file.title && file.source)
                 file.title = file.source.match(/.*\/(.*)/)[1];
         });
@@ -81,16 +82,18 @@ export default class FilePreview extends React.Component {
                     />
             </div>);
         return (
-            <div className="pf-container well">
-                <div className="pf-header modal-header">
-                    {fileSelector || title}
+            <ReactCSSTransitionGroup transitionName="example" transitionAppear={true} transitionAppearTimeout={1500}>
+                <div className="pf-container well">
+                    <div className="pf-header modal-header">
+                        {fileSelector || title}
+                    </div>
+                    <ContentWrapper
+                        {...props}
+                        {...this.state}
+                        />
+                    {themeSelector}
                 </div>
-                <ContentWrapper
-                    {...props}
-                    {...this.state}
-                    />
-                {themeSelector}
-            </div>
+            </ReactCSSTransitionGroup>
         );
     }
 
