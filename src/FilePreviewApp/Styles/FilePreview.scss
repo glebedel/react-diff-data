@@ -72,6 +72,28 @@
         padding-left: 1em;
       }
     }
+    .pf-language-controller{
+      float:left;
+      .pf-choice-select {
+        right:0px;
+      }
+      .pf-choice-option {
+        right:0px;
+        text-align: right;
+      }
+      .pf-choice-list {
+        width: 100%;
+      }
+      button {
+        padding-right: 1em;
+        padding-left: 2px;
+      }
+      label {
+        pointer: cursor;
+        padding-right: 5px;
+        padding-left: 1em;
+      }
+    }
   }
   .pf-error {
     margin: auto;
@@ -95,11 +117,11 @@
   }
 }
 
-.example-appear {
+.pf-appear {
   opacity: 0.01;
 }
 
-.example-appear.example-appear-active {
+.pf-appear.pf-appear-active {
   opacity: 1;
   transition: opacity .5s ease-in;
 }
@@ -135,8 +157,3 @@
 .pf-error-leave {
   opacity: 1;
 }
-
-/*.pf-error-leave.pf-error-leave-active {
-  opacity: 0.01;
-  transition: opacity 300ms ease-in;
-}*/

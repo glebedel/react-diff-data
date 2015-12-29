@@ -5,18 +5,17 @@ import ConfigManager from '../ConfigManager.js';
 let hljs = require('highlight.js');
 let $ = require('jquery');
 let Spinner = require('react-spinkit');
+var beautify = require('js-beautify').js_beautify;
 
 import "highlight.js/styles/default.css"
 import '../Styles/highlightjs.scss';
 import '../Styles/FilePreview.scss';
-
 import SimpleCache from '../Caching.js';
 
 export default class ContentWrapper extends React.Component {
     static defaultProps = {
         currentFile: {},
         theme: "default",
-        config: {},
         spinner: "circle"
     }
     fileStorage = SimpleCache.createStore('fileCache');
@@ -34,7 +33,7 @@ export default class ContentWrapper extends React.Component {
             else {
                 let fileAtRequest = currentFile;
  //               setTimeout(()=> {
-                    $.ajax({method: "GET", url: currentFile.source, dataType: "text/plain"}).done((result) => {
+                    $.ajax({method: "GET", url: currentFile.source, dataType: "text"}).done((result) => {
                         //checking that we didn't switch file during request
                         if (this.props.currentFile === fileAtRequest)
                             this.setState({data: result});
@@ -62,7 +61,7 @@ export default class ContentWrapper extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("willReceiveProps", nextProps);
+        //console.log("willReceiveProps", nextProps);
         if (nextProps.currentFile !== this.props.currentFile) {
             if (!nextProps.currentFile.data)
                 this.setState({data: null});
@@ -77,8 +76,9 @@ export default class ContentWrapper extends React.Component {
     }
 
     render() {
+        let file = this.props.currentFile;
         console.warn("Render Content Wrapper!");
-        console.log("Rendered data:" + this.state.data);
+        //console.log("Rendered data:" + this.state.data);
         //ajax request failed
         let component;
         if (this.state.data === false) {
@@ -87,7 +87,7 @@ export default class ContentWrapper extends React.Component {
                         transitionEnterTimeout={500}
                         transitionLeaveTimeout={0}>
                     <div
-                        key={this.props.currentFile.source}
+                        key={file.source}
                          className="pf-error panel panel-danger">
                         <div className="panel-heading">
                             <h3 className="panel-title">
@@ -96,8 +96,8 @@ export default class ContentWrapper extends React.Component {
                         </div>
                         <div className="panel-body">
                             <strong>
-                                <a href="javascript:void(0)" className="alert-link">
-                                    {this.props.currentFile.source}
+                                <a href={file.source} className="alert-link">
+                                    {file.source}
                                 </a>
                             </strong>
                             &nbsp;couldn't be retrieved.
@@ -122,13 +122,13 @@ export default class ContentWrapper extends React.Component {
             <ReactCSSTransitionGroup transitionName="pf-wrapper"
                                      transitionEnterTimeout={1500}
                                      transitionLeaveTimeout={550}>
-                <div key={this.props.currentFile.title} className={"pf-content-wrapper hljs-theme"}>
+                <div key={file.title} className={"pf-content-wrapper hljs-theme"}>
                     <pre
                         className={this.props.theme}>
                         <code
                             ref={"codeBlock"}
-                            className={"hljs " + this.props.theme + " " + this.props.currentFile.language}
-                            >{this.formatData(this.state.data)}
+                            className={"hljs " + this.props.theme}
+                            >{this.formatData(this.props.prettify ? beautify(this.state.data) : this.state.data)}
                         </code>
                     </pre>
                 </div>
@@ -142,8 +142,12 @@ export default class ContentWrapper extends React.Component {
     }
 
     initializeThirdParty(codeBlock) {
-        if (!this.props.currentFile.language && this.state.data)
-            codeBlock.classList.remove(codeBlock.classList[codeBlock.classList.length - 1])
+        if (this.state.data)
+            codeBlock.className = Array.prototype.slice.apply(codeBlock.classList, [0,2]).join(" ");
+        if (this.props.language && this.props.language != "auto")
+            codeBlock.classList.add(this.props.language);
+        else if (this.props.currentFile && this.props.currentFile.language)
+            codeBlock.classList.add(this.props.currentFile.language);
         hljs.highlightBlock(codeBlock)
     }
 

@@ -2,7 +2,7 @@ import '../Styles/FilePreview.scss';
 
 let _ = require("lodash")
 let hljs = require('highlight.js');
-let  ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+let ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
@@ -18,10 +18,12 @@ import React from 'react';
 import ConfigManager from '../ConfigManager.js';
 import ContentWrapper from './ContentWrapper.jsx';
 import ChoiceSelector from './ChoiceSelector.jsx';
-
+import {TogglerButton} from './Toggler.jsx';
+import {TogglerLabel} from './Toggler.jsx';
 
 export default class FilePreview extends React.Component {
-    static defaultProps = {content: [], theme: "default", controls: {}, config: {}}
+    static defaultProps = {content: [], theme: "default", controls: {}, config: {}, language: "auto",
+        prettify: false}
     static propTypes = {
         content: React.PropTypes.arrayOf(React.PropTypes.shape({
             source: React.PropTypes.string,
@@ -38,6 +40,7 @@ export default class FilePreview extends React.Component {
             language: this.props.language,
             theme: this.props.theme,
             currentFile: this.props.content[0],
+            prettify: this.props.prettify
         }, ConfigManager.getConfig(this.props.config));
     }
 
@@ -51,26 +54,41 @@ export default class FilePreview extends React.Component {
                 file.title = file.source.match(/.*\/(.*)/)[1];
         });
     }
-
+    handlePrettifying= ()=>{
+        this.setState({prettify: !this.state.prettify})
+    }
     render() {
         let currentFile = this.state.currentFile;
         let {controls, ...props} = this.props;
         this._fixFileTitles(this.props.content);
+
         ConfigManager.setConfig(this.props.config, {language: this.state.language, theme: this.state.theme});
         let title = (currentFile.title && <h2 className="pf-title">{currentFile.title}</h2>);
+
         let themeSelector = controls.themes &&
-            (<div className="pf-controllers">
-                <div className="pf-theme-controller">
-                    <ChoiceSelector
-                        choices={controls.themes}
-                        updateParentState={this.setState.bind(this)}
-                        choicePrefix="Theme"
-                        currentValue={this.state.theme}
-                        stateToUpdate="theme"
-                        />
-                </div>
-            </div>);
+            <div className="pf-theme-controller">
+                <ChoiceSelector
+                    choices={controls.themes}
+                    updateParentState={this.setState.bind(this)}
+                    choicePrefix="Theme"
+                    currentValue={this.state.theme}
+                    stateToUpdate="theme"
+                    />
+            </div>
+
+        let languagesSelector = controls.languages &&
+            <div className="pf-language-controller">
+                <ChoiceSelector
+                    choices={controls.languages}
+                    updateParentState={this.setState.bind(this)}
+                    choicePrefix="Language"
+                    currentValue={this.state.language}
+                    stateToUpdate="language"
+                    />
+            </div>
+
         let files = this.props.content.map((file)=> file.title);
+
         let fileSelector = this.props.content.length > 1 &&
             (<div className="pf-file-controller">
                 <ChoiceSelector
@@ -81,17 +99,37 @@ export default class FilePreview extends React.Component {
                     dataChoiceMapping={this.props.content}
                     />
             </div>);
+
+        let prettifier = controls.prettifier &&
+                <TogglerButton
+                    styleClasses={["btn-primary", "btn-default"]}
+                    names={["Prettify", "Uglify"]}
+                    actions={[this.setState.bind(this, {prettify: true}), this.setState.bind(this,{prettify:false})]}
+                    />
+
+        let bottomControllers = (languagesSelector || themeSelector) &&
+            <div className="pf-controllers">
+                {themeSelector}
+                {languagesSelector}
+            </div>
+
         return (
-            <ReactCSSTransitionGroup transitionName="example" transitionAppear={true} transitionAppearTimeout={1500}>
+            <ReactCSSTransitionGroup
+                transitionName="pf"
+                transitionAppear={true}
+                transitionAppearTimeout={1500}
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={500}>
                 <div className="pf-container well">
                     <div className="pf-header modal-header">
                         {fileSelector || title}
                     </div>
+                    {prettifier}
                     <ContentWrapper
                         {...props}
                         {...this.state}
                         />
-                    {themeSelector}
+                    {bottomControllers}
                 </div>
             </ReactCSSTransitionGroup>
         );

@@ -16,20 +16,23 @@ render(
             content={[
                     {data:exampleFile, title:"FilePreview.jsx'", language:"javascript"},
                     {source:'https://dl.dropboxusercontent.com/s/rh52c4ksjlpthbo/mmcore_accor_userInteraction.js', title:"index.jsx", cache:true},
-                    {source:'https://raw.githubusercontent.com/zemirco/sf-city-lots-json/master/citylots.json', title:"San Fran", cache:true}
+                    {source:'https://raw.githubusercontent.com/zemirco/sf-city-lots-json/master/citylots.json', title:"San Fran", cache:true},
+                    {source:'../data/GoogleAnalytics.js', title: 'GA Register Script', cached: true}
                     ]}
             //           possible theme: ["tomorrow", "tomorrow-night", "xcode", "sunburst", "solarized-dark", "solarized-light", "rainbow", "railscast", "monokai", "monokai-sublime", "default", "androidstudio", "arta", "codepen", "darkula", "docco", "github", "google-code", "idea"]
             theme={"monokai"}
             spinner={"circle"}
             controls={{themes:["monokai", "github", "docco", "default"],
-                       languages:["javascript", "css", "html"],}}
+                       languages:["auto", "javascript", "css", "xml"],
+                       prettifier:true}}
             config={"preview-file"}
             />
         <FilePreview
             content={[{data:exampleFile, title:"My File2"},
-            ]}
+           ]}
             //           possible theme: ["tomorrow", "tomorrow-night", "xcode", "sunburst", "solarized-dark", "solarized-light", "rainbow", "railscast", "monokai", "monokai-sublime", "default", "androidstudio", "arta", "codepen", "darkula", "docco", "github", "google-code", "idea"]
             theme={"docco"}
-            config={"preview-file"}
+            controls={{languages:["auto", "javascript", "xml", "css"]}}
+            config={"preview-file2"}
             />
     </div>, document.getElementById('filePreviewApp'));
